@@ -14,7 +14,7 @@ children: <Widget>[
 ```
 
 * Программа, открытая в Chrome:
-* 
+  
 ![Chrome_Flutter](https://github.com/user-attachments/assets/f5ae68fc-cbc5-4983-9d3d-7de203b2cad2)
 
 
