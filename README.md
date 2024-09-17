@@ -3,5 +3,6 @@
 
 * Программа, открытая на эмуляторе Android:
 
-![Снимок экрана 2024-09-17 115500](https://github.com/user-attachments/assets/95b44de8-0c1f-4c19-af3d-80082c20ee31)
+![Снимок экрана 2024-09-17 120804](https://github.com/user-attachments/assets/c68abeed-df8a-490b-aff0-8f768961d276)
+
 
