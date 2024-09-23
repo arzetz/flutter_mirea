@@ -3,6 +3,11 @@
 
 * Программа, открытая на эмуляторе Android:
 
+Старая версия
 ![Снимок экрана 2024-09-17 120804](https://github.com/user-attachments/assets/c68abeed-df8a-490b-aff0-8f768961d276)
+
+
+Новая версия
+![изображение](https://github.com/user-attachments/assets/3f9ae6d0-625c-4e15-9ff8-01a2a38f8306)
 
 
