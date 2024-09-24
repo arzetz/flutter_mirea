@@ -2,4 +2,4 @@
 Суть работы заключается в создании простейшего интерфейса магазина на flutter с помощью ListView 
 
 ## GIF с работой приложения: 
-![](https://github.com/arzetz/flutter_mirea/blob/practice_3/Practice_3.gif =300x200)
+![](https://github.com/arzetz/flutter_mirea/blob/practice_3/Practice_3.gif)
