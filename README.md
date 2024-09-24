@@ -3,3 +3,4 @@
 
 ## GIF с работой приложения: 
 
+![](https://github.com/arzetz/flutter_mirea/blob/practice_3/%D0%B9%D1%86%D1%83%D0%B9%D1%83%D0%B9%D1%83%D0%B9%D1%86.gif)
