@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_practice_3/models/note.dart';
+import 'package:flutter_practice_4/models/note.dart';
 class AddItemPage extends StatefulWidget {
   final Function(Knopa) onItemAdded;
 

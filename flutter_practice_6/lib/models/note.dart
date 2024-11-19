@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 class Knopa{
 
@@ -10,4 +9,8 @@ final String innerKnopaDescription;
 final String price;
 
   Knopa({required this.id, required  this.photoLink, required this.title, required this.knopaDescription, required this.innerKnopaDescription, required this.price});
+
+  get notes => null;
+
+  void favouriteToggle(notes) {}
 }

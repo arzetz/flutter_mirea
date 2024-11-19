@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_practice_3/components/item_node.dart';
-import 'additem_page.dart';
-import 'package:flutter_practice_3/models/note.dart';
+import 'package:flutter_practice_4/components/item_node.dart';
+import 'add_item_page.dart';
+import 'package:flutter_practice_4/models/note.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, required this.favoriteNotes, required this.addToFavorites});
+
+  final List<Knopa> favoriteNotes; // Список избранных заметок
+  final Function(Knopa) addToFavorites; // Функция добавления в избранное
+
 
   @override
   HomePageState createState() => HomePageState();
@@ -59,7 +63,8 @@ final List<Knopa> notes = <Knopa>[
     body: ListView.builder(
       itemCount: notes.length,
        itemBuilder: (BuildContext context, int index) {
-      return ItemNode(knops: notes[index],);
+      return ItemNode(knops: notes[index], favoriteToggle: widget.addToFavorites,
+            isFavorite: widget.favoriteNotes.contains(notes[index]));
     }
     ),
     floatingActionButton: FloatingActionButton(
