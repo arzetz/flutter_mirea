@@ -1,24 +1,30 @@
-## ПКС. Практическая работа №1. Мельников Артемий Алексеевич, ЭФБО-02-22. Первый flutter-проект
-Суть работы заключается в запуске стокового кода с минимальными изменениями в веб-браузере и на эмуляторе Android.
+## ПКС. Практическая работа №11. Мельников Артемий Алексеевич, ЭФБО-02-22. Добавление Supabase, регистрация и авторизация.
+Суть работы заключается в добавлении системы управления авторизацией Supabase в готовый flutter-проект.
+
 Листинг изменённого кода приведён ниже:
 ```
-children: <Widget>[
-            const Text(
-              'Мельников Артемий Алексеевич, ЭФБО-02-22',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+const supabaseUrl = 'https://xzibhythexmxaquxyrrf.supabase.co';
+const supabaseKey =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6aWJoeXRoZXhteGFxdXh5cnJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ3MjkwMzUsImV4cCI6MjA1MDMwNTAzNX0.3G1ugfU2rHDco8_e6cjtkn5imz955Z5qR_2MaBDbpGY';
+
+Future<void> main() async {
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
+  runApp(MyApp());
+}
 ```
 
-* Программа, открытая в Chrome:
+### Регистрация:
   
-![Chrome_Flutter](https://github.com/user-attachments/assets/f5ae68fc-cbc5-4983-9d3d-7de203b2cad2)
+![Flutter_11_supabase_reg](https://github.com/user-attachments/assets/0db0f235-a8a7-4a9f-b079-a34bc1add689)
+
+### Авторизация:
+
+![Flutter_11_supabase_auth](https://github.com/user-attachments/assets/d8bce4ae-953c-44c8-903d-7b632c11d7a8)
+
+### Информация о пользователях в Supabase:
+
+![Flutter_11_supabase_users](https://github.com/user-attachments/assets/31c16945-b6b4-4e4d-827d-1b0116513436)
 
 
-* Программа, открытая на эмуляторе Android:
-  
-![Android Emulator](https://github.com/user-attachments/assets/52f730c0-5090-49da-b4d4-a510c716d57e)
+
 
