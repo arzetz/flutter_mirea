@@ -21,6 +21,8 @@ Future<void> main() async {
 
 ![Flutter_11_supabase_auth](https://github.com/user-attachments/assets/d8bce4ae-953c-44c8-903d-7b632c11d7a8)
 
+![Flutter_11_supabase_auth_2](https://github.com/user-attachments/assets/dd3375f8-85b1-4118-a465-d72155c5fd07)
+
 ### Информация о пользователях в Supabase:
 
 ![Flutter_11_supabase_users](https://github.com/user-attachments/assets/31c16945-b6b4-4e4d-827d-1b0116513436)
