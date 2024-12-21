@@ -3,7 +3,9 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"io"
 	"log"
+	"strings"
 
 	"encoding/json"
 	"net/http"
@@ -12,6 +14,138 @@ import (
 )
 
 var db *sql.DB
+
+var supabaseURL = "https://xzibhythexmxaquxyrrf.supabase.co"
+var supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6aWJoeXRoZXhteGFxdXh5cnJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ3MjkwMzUsImV4cCI6MjA1MDMwNTAzNX0.3G1ugfU2rHDco8_e6cjtkn5imz955Z5qR_2MaBDbpGY"
+
+type AuthRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func enableCors(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next(w, r)
+	}
+}
+
+func registerHandler(w http.ResponseWriter, r *http.Request) {
+	var req AuthRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	client := &http.Client{}
+	request, err := http.NewRequest("POST", supabaseURL+"/auth/v1/signup", strings.NewReader(fmt.Sprintf(
+		`{"email":"%s","password":"%s"}`, req.Email, req.Password,
+	)))
+	if err != nil {
+		http.Error(w, "Failed to create request", http.StatusInternalServerError)
+		return
+	}
+	request.Header.Set("apikey", supabaseKey)
+	request.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(request)
+	if err != nil {
+		http.Error(w, "Failed to send request", http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(resp.StatusCode)
+	json.NewDecoder(resp.Body).Decode(w)
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	var req AuthRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, `{"error": "Invalid input"}`, http.StatusBadRequest)
+		return
+	}
+
+	client := &http.Client{}
+	request, err := http.NewRequest("POST", supabaseURL+"/auth/v1/token?grant_type=password", strings.NewReader(fmt.Sprintf(
+		`{"email":"%s","password":"%s"}`, req.Email, req.Password,
+	)))
+	if err != nil {
+		http.Error(w, `{"error": "Failed to create request"}`, http.StatusInternalServerError)
+		fmt.Println("Error creating request:", err)
+		return
+	}
+	request.Header.Set("apikey", supabaseKey)
+	request.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(request)
+	if err != nil {
+		http.Error(w, `{"error": "Failed to send request"}`, http.StatusInternalServerError)
+		fmt.Println("Error sending request:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		http.Error(w, fmt.Sprintf(`{"error": "Supabase error", "details": %s}`, body), resp.StatusCode)
+		return
+	}
+
+	var supabaseResponse map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&supabaseResponse); err != nil {
+		http.Error(w, `{"error": "Failed to parse Supabase response"}`, http.StatusInternalServerError)
+		fmt.Println("Error parsing Supabase response:", err)
+		return
+	}
+
+	// Успешный ответ
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(supabaseResponse)
+}
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("Authorization")
+	if token == "" {
+		http.Error(w, `{"error": "Missing Authorization header"}`, http.StatusUnauthorized)
+		return
+	}
+
+	client := &http.Client{}
+	request, err := http.NewRequest("POST", supabaseURL+"/auth/v1/logout", nil)
+	if err != nil {
+		http.Error(w, `{"error": "Failed to create request"}`, http.StatusInternalServerError)
+		return
+	}
+	request.Header.Set("apikey", supabaseKey)
+	request.Header.Set("Authorization", token)
+
+	resp, err := client.Do(request)
+	if err != nil {
+		http.Error(w, `{"error": "Failed to send request"}`, http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
+		body, _ := io.ReadAll(resp.Body)
+		http.Error(w, fmt.Sprintf(`{"error": "Supabase error: %s"}`, body), resp.StatusCode)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Logged out successfully"})
+}
 
 // Инициализация соединения с базой данных
 func initDB() {
@@ -178,9 +312,23 @@ func addToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Получаем токен из заголовка Authorization
+	token := r.Header.Get("Authorization")
+	if token == "" {
+		http.Error(w, "Missing Authorization header", http.StatusUnauthorized)
+		return
+	}
+
+	// Извлекаем ID пользователя из Supabase
+	userID, err := getUserIDFromSupabase(token)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to get user ID: %v", err), http.StatusUnauthorized)
+		return
+	}
+
 	// SQL-запрос для вставки данных в таблицу cart
-	query := `INSERT INTO cart (cucumber_id) VALUES ($1)`
-	_, err = db.Exec(query, req.CucumberID)
+	query := `INSERT INTO cart (cucumber_id, user_id) VALUES ($1, $2)`
+	_, err = db.Exec(query, req.CucumberID, userID)
 	if err != nil {
 		http.Error(w, "Failed to add to cart", http.StatusInternalServerError)
 		return
@@ -188,6 +336,45 @@ func addToCart(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "Cucumber added to cart")
+}
+func getUserIDFromSupabase(token string) (int, error) {
+	log.Printf("Получен токен: %s\n", token)
+
+	if !strings.Contains(token, ".") {
+		log.Println("Invalid token format")
+		return 0, fmt.Errorf("invalid JWT format")
+	}
+
+	// Запрос к Supabase
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", "https://<supabase-url>/auth/v1/user", nil)
+	if err != nil {
+		return 0, fmt.Errorf("failed to create request: %v", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("apikey", "<supabase-anon-key>")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return 0, fmt.Errorf("failed to send request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		log.Printf("Supabase error: %s\n", string(body))
+		return 0, fmt.Errorf("Supabase error: %s", string(body))
+	}
+
+	var user struct {
+		ID int `json:"id"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+		return 0, fmt.Errorf("failed to decode response: %v", err)
+	}
+
+	log.Printf("User ID: %d\n", user.ID)
+	return user.ID, nil
 }
 
 func getCart(w http.ResponseWriter, r *http.Request) {
@@ -227,13 +414,16 @@ func getCart(w http.ResponseWriter, r *http.Request) {
 func main() {
 	initDB()
 
-	http.HandleFunc("/cucumbers", getCucumbers)
-	http.HandleFunc("/add", addCucumber)
-	http.HandleFunc("/addToFavorites", addToFavorites)
-	http.HandleFunc("/removeFromFavorites", removeFromFavorites)
-	http.HandleFunc("/getFavorites", getFavorites)
-	http.HandleFunc("/addToCart", addToCart)
-	http.HandleFunc("/getCart", getCart)
+	http.HandleFunc("/cucumbers", enableCors(getCucumbers))
+	http.HandleFunc("/add", enableCors(addCucumber))
+	http.HandleFunc("/addToFavorites", enableCors(addToFavorites))
+	http.HandleFunc("/removeFromFavorites", enableCors(removeFromFavorites))
+	http.HandleFunc("/getFavorites", enableCors(getFavorites))
+	http.HandleFunc("/addToCart", enableCors(addToCart))
+	http.HandleFunc("/getCart", enableCors(getCart))
+	http.HandleFunc("/register", enableCors(registerHandler))
+	http.HandleFunc("/login", enableCors(loginHandler))
+	http.HandleFunc("/logout", enableCors(logoutHandler))
 
 	fmt.Println("Server running on port 8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
