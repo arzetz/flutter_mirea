@@ -17,13 +17,33 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        primaryColor: Colors.white, // Основной цвет — белый
+        scaffoldBackgroundColor: Colors.white, // Фон приложения — белый
+        appBarTheme: const AppBarTheme(
+          color: Colors.white, // Цвет AppBar — белый
+          iconTheme: IconThemeData(color: Colors.black), // Иконки чёрного цвета
+          titleTextStyle: TextStyle(
+            color: Colors.black, // Чёрный текст заголовка
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: Colors.black, // Кнопка действия — чёрная
+          foregroundColor: Colors.white, // Иконка — белая
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Colors.white, // Белый фон нижней панели
+          selectedItemColor: Colors.black, // Чёрный цвет выбранного элемента
+          unselectedItemColor: Colors.grey, // Серый цвет невыбранных элементов
+          selectedLabelStyle: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
-      home: Screen(),
+      home: const Screen(),
     );
   }
 }

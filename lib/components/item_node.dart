@@ -51,7 +51,7 @@ class _ItemNodeState extends State<ItemNode> {
             ),
           ),
           width: double.infinity,
-          height: MediaQuery.of(context).size.height * 1.1,
+          height: MediaQuery.of(context).size.height * 0.8,
           child: Stack(
             children: [
               Column(
@@ -68,18 +68,22 @@ class _ItemNodeState extends State<ItemNode> {
                   ),
                   Image(
                     image: AssetImage(widget.knops.photoLink),
-                    height: 500,
+                    height: MediaQuery.of(context).size.height * 0.5,
                   ),
-                  Center(
-                    child: Text(
-                      widget.knops.knopaDescription,
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 0, 0, 0),
-                        fontSize: 20,
+                  Padding(
+                    padding: const EdgeInsets.all(
+                        16.0), // Отступы со всех сторон на 16 пикселей
+                    child: Center(
+                      child: Text(
+                        widget.knops.knopaDescription,
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 0, 0, 0),
+                          fontSize: 20,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Text(
                     'Стоит всего ${widget.knops.price}',
                     style: const TextStyle(

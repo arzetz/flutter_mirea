@@ -47,26 +47,46 @@ class NotePage extends StatelessWidget {
           color: Color.fromARGB(255, 0, 0, 0),
           fontSize: 24,
         ),
+        title: Text(note.title),
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                note.title,
-                style:
-                    const TextStyle(fontSize: 34, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 30),
+              // Фото товара
               Center(
-                child: Text(
-                  note.innerKnopaDescription,
-                  style: const TextStyle(fontSize: 24),
+                child: Image.asset(
+                  'assets/${note.photoLink}', // Замените на ваш путь к изображению
+                  height: 250,
+                  width: 250,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.error,
+                        size: 50); // Обработка ошибки
+                  },
                 ),
               ),
               const SizedBox(height: 20),
+              // Название товара
+              Text(
+                note.title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Описание товара
+              Text(
+                note.innerKnopaDescription,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 18),
+              ),
+              const SizedBox(height: 30),
+              // Кнопка "Добавить в корзину"
               Center(
                 child: SizedBox(
                   width: double.infinity,
@@ -85,7 +105,7 @@ class NotePage extends StatelessWidget {
                             content: Text(
                               '${note.title} добавлен в корзину!',
                               style: const TextStyle(
-                                  fontSize: 24,
+                                  fontSize: 18,
                                   color: Color.fromARGB(255, 39, 214, 83)),
                             ),
                             backgroundColor:
@@ -114,9 +134,9 @@ class NotePage extends StatelessWidget {
                       }
                     },
                     child: Text(
-                      'Потратить ${note.price} на огурчик',
+                      'Потратить ${double.parse(note.price).toStringAsFixed(2)} ₽ на огурчик',
                       style: const TextStyle(
-                          fontSize: 24, color: Color.fromARGB(255, 3, 26, 9)),
+                          fontSize: 20, color: Color.fromARGB(255, 3, 26, 9)),
                     ),
                   ),
                 ),

@@ -83,7 +83,16 @@ class _CartPageState extends State<CartPage> {
               itemBuilder: (context, index) {
                 final item = cartItems[index];
                 return ListTile(
-                  leading: Image.network(item['photo_link']),
+                  leading: Image.asset(
+                    'assets/${item['photo_link']}', // Динамически добавляем путь из базы данных
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.error,
+                          size: 50); // Обработчик ошибки
+                    },
+                    height: 50,
+                    width: 50,
+                    fit: BoxFit.cover,
+                  ),
                   title: Text(item['title']),
                   subtitle: Text("Цена: ${item['price']} ₽"),
                 );

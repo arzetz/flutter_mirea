@@ -10,11 +10,12 @@ Future<String?> getToken() async {
 }
 
 // Функция для отправки данных на сервер
+// Функция для отправки данных на сервер
 Future<void> addCucumberToServer({
   required String title,
   required String description,
   required String photoLink,
-  required String price,
+  required double price,
   required BuildContext context,
   required Function onItemAdded,
 }) async {
@@ -38,7 +39,7 @@ Future<void> addCucumberToServer({
     body: jsonEncode({
       'title': title,
       'description': description,
-      'price': price,
+      'price': price.toStringAsFixed(2), // Преобразуем цену в строку
       'photo_link': photoLink,
     }),
   );
@@ -142,7 +143,7 @@ class _AddItemPageState extends State<AddItemPage> {
                   title: title,
                   description: description,
                   photoLink: photoLink,
-                  price: '${price.toStringAsFixed(2)} ₽',
+                  price: price,
                   context: context,
                   onItemAdded: widget.onItemAdded,
                 );
